@@ -67,7 +67,7 @@
     "sd_model_checkpoint": "model.safetensors [5b2afec3d9]",
     "sd_checkpoint_cache": 0,
     "sd_vae_checkpoint_cache": 0,
-    "sd_vae": "Automatic",
+    "sd_vae": "vae-ft-mse-840000-ema-pruned.safetensors",
     "sd_vae_as_default": true,
     "inpainting_mask_weight": 1.0,
     "initial_noise_multiplier": 1.0,
