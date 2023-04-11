@@ -27,6 +27,7 @@ from modules.sd_models_config import find_checkpoint_config_near_filename
 from modules.realesrgan_model import get_realesrgan_models
 from modules import devices
 from typing import List
+from firebaseStylo import setServerBusy
 import piexif
 import piexif.helper
 
@@ -303,6 +304,7 @@ class Api:
         args.pop('save_images', None)
 
         with self.queue_lock:
+            setServerBusy(True)
             p = StableDiffusionProcessingTxt2Img(sd_model=shared.sd_model, **args)
             p.scripts = script_runner
             p.outpath_grids = opts.outdir_txt2img_grids
@@ -316,6 +318,7 @@ class Api:
                 p.script_args = tuple(script_args) # Need to pass args as tuple here
                 processed = process_images(p)
             shared.state.end()
+            setServerBusy(False)
 
         b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []
 
@@ -359,6 +362,7 @@ class Api:
         args.pop('save_images', None)
 
         with self.queue_lock:
+            setServerBusy(True)
             p = StableDiffusionProcessingImg2Img(sd_model=shared.sd_model, **args)
             p.init_images = [decode_base64_to_image(x) for x in init_images]
             p.scripts = script_runner
@@ -373,6 +377,7 @@ class Api:
                 p.script_args = tuple(script_args) # Need to pass args as tuple here
                 processed = process_images(p)
             shared.state.end()
+            setServerBusy(False)
 
         b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []
 
@@ -388,7 +393,9 @@ class Api:
         reqDict['image'] = decode_base64_to_image(reqDict['image'])
 
         with self.queue_lock:
+            setServerBusy(True)
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
+            setServerBusy(False)
 
         return ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), html_info=result[1])
 
@@ -404,7 +411,9 @@ class Api:
         reqDict.pop('imageList')
 
         with self.queue_lock:
+            setServerBusy(True)
             result = postprocessing.run_extras(extras_mode=1, image="", input_dir="", output_dir="", save_output=False, **reqDict)
+            setServerBusy(False)
 
         return ExtrasBatchImagesResponse(images=list(map(encode_pil_to_base64, result[0])), html_info=result[1])
 
@@ -462,12 +471,14 @@ class Api:
 
         # Override object param
         with self.queue_lock:
+            setServerBusy(True)
             if interrogatereq.model == "clip":
                 processed = shared.interrogator.interrogate(img)
             elif interrogatereq.model == "deepdanbooru":
                 processed = deepbooru.model.tag(img)
             else:
                 raise HTTPException(status_code=404, detail="Model not found")
+            setServerBusy(False)
 
         return InterrogateResponse(caption=processed)
 
