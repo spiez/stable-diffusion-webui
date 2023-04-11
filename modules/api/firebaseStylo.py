@@ -16,9 +16,9 @@ def setServerBusy(isBusy: bool):
     datajson = json.load(data_file)
 
   ngrokUrl = datajson['tunnels'][0].get('public_url').replace('/', '-').replace('.', '_')
-  ref = db.reference('server_status')
+  ref = db.reference('server_status/' + ngrokUrl)
   ref.set({
-    ngrokUrl + '/busy': isBusy
+    'busy': isBusy
   })
 
 
