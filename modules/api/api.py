@@ -304,7 +304,7 @@ class Api:
         args.pop('save_images', None)
 
         with self.queue_lock:
-            setServerBusy(True)
+            setServerBusy(True, txt2imgreq.request_id)
             p = StableDiffusionProcessingTxt2Img(sd_model=shared.sd_model, **args)
             p.scripts = script_runner
             p.outpath_grids = opts.outdir_txt2img_grids
@@ -318,7 +318,7 @@ class Api:
                 p.script_args = tuple(script_args) # Need to pass args as tuple here
                 processed = process_images(p)
             shared.state.end()
-            setServerBusy(False)
+            setServerBusy(False, txt2imgreq.request_id)
 
         b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []
 
@@ -362,7 +362,7 @@ class Api:
         args.pop('save_images', None)
 
         with self.queue_lock:
-            setServerBusy(True)
+            setServerBusy(True, img2imgreq.request_id)
             p = StableDiffusionProcessingImg2Img(sd_model=shared.sd_model, **args)
             p.init_images = [decode_base64_to_image(x) for x in init_images]
             p.scripts = script_runner
@@ -377,7 +377,7 @@ class Api:
                 p.script_args = tuple(script_args) # Need to pass args as tuple here
                 processed = process_images(p)
             shared.state.end()
-            setServerBusy(False)
+            setServerBusy(False, img2imgreq.request_id)
 
         b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []
 
@@ -393,9 +393,9 @@ class Api:
         reqDict['image'] = decode_base64_to_image(reqDict['image'])
 
         with self.queue_lock:
-            setServerBusy(True)
+            setServerBusy(True, req.request_id)
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
-            setServerBusy(False)
+            setServerBusy(False, req.request_id)
 
         return ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), html_info=result[1])
 
@@ -411,9 +411,9 @@ class Api:
         reqDict.pop('imageList')
 
         with self.queue_lock:
-            setServerBusy(True)
+            setServerBusy(True, req.request_id)
             result = postprocessing.run_extras(extras_mode=1, image="", input_dir="", output_dir="", save_output=False, **reqDict)
-            setServerBusy(False)
+            setServerBusy(False, req.request_id)
 
         return ExtrasBatchImagesResponse(images=list(map(encode_pil_to_base64, result[0])), html_info=result[1])
 
@@ -471,14 +471,14 @@ class Api:
 
         # Override object param
         with self.queue_lock:
-            setServerBusy(True)
+            setServerBusy(True, interrogatereq.request_id)
             if interrogatereq.model == "clip":
                 processed = shared.interrogator.interrogate(img)
             elif interrogatereq.model == "deepdanbooru":
                 processed = deepbooru.model.tag(img)
             else:
                 raise HTTPException(status_code=404, detail="Model not found")
-            setServerBusy(False)
+            setServerBusy(False, interrogatereq.request_id)
 
         return InterrogateResponse(caption=processed)
 

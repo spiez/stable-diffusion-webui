@@ -107,6 +107,7 @@ StableDiffusionTxt2ImgProcessingAPI = PydanticModelGenerator(
         {"key": "send_images", "type": bool, "default": True},
         {"key": "save_images", "type": bool, "default": False},
         {"key": "alwayson_scripts", "type": dict, "default": {}},
+        {"key": "request_id", "type": str, "default": "0"},
     ]
 ).generate_model()
 
@@ -124,6 +125,7 @@ StableDiffusionImg2ImgProcessingAPI = PydanticModelGenerator(
         {"key": "send_images", "type": bool, "default": True},
         {"key": "save_images", "type": bool, "default": False},
         {"key": "alwayson_scripts", "type": dict, "default": {}},
+        {"key": "request_id", "type": str, "default": "0"},
     ]
 ).generate_model()
 
@@ -157,6 +159,7 @@ class ExtraBaseResponse(BaseModel):
 
 class ExtrasSingleImageRequest(ExtrasBaseRequest):
     image: str = Field(default="", title="Image", description="Image to work on, must be a Base64 string containing the image's data.")
+    request_id: str = Field(default="0", title="Request ID", description="The ID of the request, used to identify the request.")
 
 class ExtrasSingleImageResponse(ExtraBaseResponse):
     image: str = Field(default=None, title="Image", description="The generated image in base64 format.")
@@ -167,6 +170,7 @@ class FileData(BaseModel):
 
 class ExtrasBatchImagesRequest(ExtrasBaseRequest):
     imageList: List[FileData] = Field(title="Images", description="List of images to work on. Must be Base64 strings")
+    request_id: str = Field(default="0", title="Request ID", description="The ID of the request, used to identify the request.")
 
 class ExtrasBatchImagesResponse(ExtraBaseResponse):
     images: List[str] = Field(title="Images", description="The generated images in base64 format.")
@@ -191,6 +195,7 @@ class ProgressResponse(BaseModel):
 class InterrogateRequest(BaseModel):
     image: str = Field(default="", title="Image", description="Image to work on, must be a Base64 string containing the image's data.")
     model: str = Field(default="clip", title="Model", description="The interrogate model used.")
+    request_id: str = Field(default="0", title="Request ID", description="The ID of the request, used to identify the request.")
 
 class InterrogateResponse(BaseModel):
     caption: str = Field(default=None, title="Caption", description="The generated caption for the image.")
