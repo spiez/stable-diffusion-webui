@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
-cred = credentials.Certificate('stylo-c2cc2-firebase-adminsdk-e95ll-ab09891f1b.json')
+cred = credentials.Certificate('modules/api/stylo-c2cc2-firebase-adminsdk-e95ll-ab09891f1b.json')
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://stylo-c2cc2-default-rtdb.firebaseio.com'
 })
