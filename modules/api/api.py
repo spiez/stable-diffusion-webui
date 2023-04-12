@@ -327,6 +327,7 @@ class Api:
 
         send_images = args.pop('send_images', True)
         args.pop('save_images', None)
+        args.pop('request_id', None)
 
         with self.queue_lock:
             with closing(StableDiffusionProcessingTxt2Img(sd_model=shared.sd_model, **args)) as p:
@@ -387,6 +388,7 @@ class Api:
 
         send_images = args.pop('send_images', True)
         args.pop('save_images', None)
+        args.pop('request_id', None)
 
         with self.queue_lock:
             with closing(StableDiffusionProcessingImg2Img(sd_model=shared.sd_model, **args)) as p:
@@ -420,7 +422,8 @@ class Api:
         reqDict = setUpscalers(req)
 
         reqDict['image'] = decode_base64_to_image(reqDict['image'])
-
+        reqDict.pop('request_id')
+        
         with self.queue_lock:
             setServerBusy(True, req.request_id)
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
@@ -433,6 +436,8 @@ class Api:
 
         image_list = reqDict.pop('imageList', [])
         image_folder = [decode_base64_to_image(x.data) for x in image_list]
+        reqDict.pop('request_id')
+
 
         with self.queue_lock:
             setServerBusy(True, req.request_id)
