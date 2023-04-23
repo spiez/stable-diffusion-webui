@@ -36,3 +36,4 @@ notification.mp3
 /node_modules
 /package-lock.json
 /.coverage*
+/modules/api/stylo-c2cc2-firebase-adminsdk-e95ll-ab09891f1b.json
